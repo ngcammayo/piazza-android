@@ -1,46 +1,49 @@
 package com.ngcammayo.piazza
 
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.ngcammayo.piazza.ui.theme.PiazzaTheme
+import android.widget.ViewFlipper
+import androidx.activity.viewModels
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import dev.hotwire.turbo.activities.TurboActivity
+import dev.hotwire.turbo.delegates.TurboActivityDelegate
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity(), TurboActivity {
+    override lateinit var delegate: TurboActivityDelegate
+    lateinit var tabBar: BottomNavigationView
+
+    private lateinit var tabSwitcher: ViewFlipper
+    private val tabsViewModel: TabsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            PiazzaTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
-            }
+        setContentView(R.layout.activity_main)
+
+        configureTurboDelegates()
+        configureTabs()
+    }
+
+    private fun configureTurboDelegates() {
+        delegate =
+            TurboActivityDelegate(this, tabsViewModel.tabs.first().id)
+
+        tabsViewModel.tabs.forEach {
+            delegate.registerNavHostFragment(it.id)
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun configureTabs() {
+        tabSwitcher = findViewById(R.id.tabSwitcher)
+        tabBar = findViewById(R.id.tabBar)
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PiazzaTheme {
-        Greeting("Android")
+        tabBar.setOnItemSelectedListener {
+            tabSwitcher.displayedChild =
+            tabsViewModel.indexedTabForId(it.itemId)!!.index
+
+            delegate.currentNavHostFragmentId = it.itemId
+            delegate.refresh(false)
+
+            return@setOnItemSelectedListener true
+        }
     }
 }
