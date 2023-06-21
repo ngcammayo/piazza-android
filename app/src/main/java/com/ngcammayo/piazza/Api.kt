@@ -8,6 +8,7 @@ class Api {
             "https://piazza-web-s8i1.onrender.com"
 
         val rootUrl = "$baseUrl/"
+        val profileUrl = "$baseUrl/profile"
         val loginUrl = "$baseUrl/login"
     }
 }

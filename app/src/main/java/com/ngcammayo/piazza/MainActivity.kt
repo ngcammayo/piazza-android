@@ -41,6 +41,10 @@ class MainActivity : AppCompatActivity(), TurboActivity {
             tabsViewModel.indexedTabForId(it.itemId)!!.index
 
             delegate.currentNavHostFragmentId = it.itemId
+
+            (delegate.currentSessionNavHostFragment.currentNavDestination
+                as NavDestination).dismissLoginScreen()
+
             delegate.refresh(false)
 
             return@setOnItemSelectedListener true
